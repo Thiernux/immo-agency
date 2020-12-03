@@ -63,6 +63,7 @@ class PropertyController extends AbstractController
  */
 	public function show(Property $property, string $slug): Response
 	{
+		//Important for the referencement. if someone change the slug our id, it will redirect
 		if ($property->getSlug() !== $slug) {
 			return $this->redirectToRoute('property.show', [
 				'id' => $property->getId(),
