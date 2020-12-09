@@ -6,6 +6,7 @@ use App\Entity\Property;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class PropertyType extends AbstractType
 {
@@ -22,13 +23,15 @@ class PropertyType extends AbstractType
                 'label'=> 'Chambres'
             ])
             ->add('floor', null, [
-                'label'=> 'Ville'
+                'label'=> 'Etage'
             ])
             ->add('price', null, [
                 'label'=> 'Prix'
             ])
-            ->add('heat', null, [
+            ->add('heat',/*null, [
                 'label'=> 'Chauffage'
+            ],*/ ChoiceType::class, [
+                'choices'=>$this->getChoices()
             ])
             ->add('city', null, [
                 'label'=> 'Ville'
@@ -51,5 +54,15 @@ class PropertyType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Property::class
         ]);
+    }
+
+    private function getChoices()
+    {
+        $choices = Property::HEAT;
+        $output = [];
+        foreach ($choices as $key => $value) {
+            $output[$value] = $key;
+        }
+        return $output;
     }
 }

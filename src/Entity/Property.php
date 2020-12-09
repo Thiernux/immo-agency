@@ -5,9 +5,12 @@ namespace App\Entity;
 use App\Repository\PropertyRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Cocur\Slugify\Slugify;
+use Symfony\Component\Validator\Constraints as Assert; // Validation import
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity; //Validation for the doctrine component (Entity)
 
 /**
  * @ORM\Entity(repositoryClass=PropertyRepository::class)
+ *@UniqueEntity("title")
  */
 class Property
 {
@@ -35,6 +38,11 @@ class Property
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\Range(
+     *      min = 10,
+     *      max = 400,
+     *      notInRangeMessage = "Vous devez entrer une surface minimale de {{ min }}m2 et maximale de {{ max }}m2",
+     * )
      */
     private $surface;
 
@@ -75,6 +83,7 @@ class Property
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Regex("/^[0-9]{5}$/")
      */
     private $postal_code;
 
@@ -232,7 +241,7 @@ class Property
         return $this;
     }
 
-    public function getPostalCode(): string
+    public function getPostalCode(): ?string
     {
         return $this->postal_code;
     }
