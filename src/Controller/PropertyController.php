@@ -6,6 +6,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Entity\Property;
 use App\Repository\PropertyRepository;
+use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\HttpFoundation\Request;
+use App\Entity\SearchProperty;
+use App\Form\SearchPropertyType;
+//use Symfony\Component\Form\Extension\Core\Type\SearchPropertyType;
 
 
 
@@ -28,31 +33,22 @@ class PropertyController extends AbstractController
  *@return Response
  */
 	
-	function index()
+	function index(PaginatorInterface $paginator, Request $request)
 	{
-		/**$property =  new Property();
-		$property->setTitle('Mon premier bien')
-			->setPrice(200000)
-			->setCity('Grenoble')
-			->setAdress(' 27 Rue Marcel Bourette')
-			->setRooms(4)
-			->setBedrooms(3)
-			->setDescription('Une petite description')
-			->setSurface(60)
-			->setFloor(4)
-			->setHeat(1)
-			->setPostalCode('38100');
-			$em = $this->getDoctrine()->getManager();
-			$em->persist($property);
-			$em->flush();**/
+		
+			$search = new SearchProperty();
+			$form = $this->createForm(SearchPropertyType::class, $search);
+			$form->handleRequest($request);
 
-			/**$repository = $this->getDoctrine()->getRepository(Property::class);
-			dump($repository);**/
-
-			/*$property = $this->repository->findAllVisible();
-			dd($property);*/
+			$properties = $paginator->paginate(
+				$this->repository->findAllVisibleQuery($search),
+				$request->query->getInt('page', 1),
+				12
+			);
 		return $this->render('property/index.html.twig', [
-			'current_menu' => 'properties'
+			'current_menu' => 'properties',
+			'properties' => $properties,
+			'form' => $form->createView()
 	]);
 	}
 

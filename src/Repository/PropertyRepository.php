@@ -6,7 +6,8 @@ use App\Entity\Property;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Repository\QueryBuilder;
-
+use Doctrine\ORM\Query;
+use App\Entity\SearchProperty;
 /**
  * @method Property|null find($id, $lockMode = null, $lockVersion = null)
  * @method Property|null findOneBy(array $criteria, array $orderBy = null)
@@ -23,14 +24,32 @@ class PropertyRepository extends ServiceEntityRepository
     
 
     /**
-     * @return Property[] Returns an array of Property objects
+     * @return Query
      */
 
-    public function findAllvisible(): array
+    public function findAllvisibleQuery(SearchProperty $search): Query
     {
-        return $this->findVisibleQuery()
-            ->getQuery()
-            ->getResult();
+        $query = $this->findVisibleQuery();
+
+        if ($search->getMaxPrice()) 
+        {
+            $query = $query
+                        ->andWhere('p.price <= :maxprice')
+                        ->setParameter('maxprice', $search->getMaxPrice());
+        }
+
+        if ($search->getMinSurface()) 
+        {
+            $query = $query
+                        ->andWhere('p.surface >= :minsurface')
+                        ->setParameter('minsurface', $search->getMinSurface());
+        }
+
+
+        
+        return $query
+            ->getQuery();
+            //->getResult();
     }
 
     /**
