@@ -8,6 +8,8 @@ use Doctrine\Persistence\ManagerRegistry;
 use App\Repository\QueryBuilder;
 use Doctrine\ORM\Query;
 use App\Entity\SearchProperty;
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * @method Property|null find($id, $lockMode = null, $lockVersion = null)
  * @method Property|null findOneBy(array $criteria, array $orderBy = null)
@@ -45,10 +47,18 @@ class PropertyRepository extends ServiceEntityRepository
                         ->setParameter('minsurface', $search->getMinSurface());
         }
 
-
+        if ($search->getOption()->count() > 0)
+        {
+            $k=0;
+            foreach ($search->getOption() as $option)
+            {
+                $k++;
+                $query = $query->andWhere(":option$k MEMBER OF p.options")
+                            ->setParameter("option$k", $option);
+            }
+        }
         
-        return $query
-            ->getQuery();
+        return $query->getQuery();
             //->getResult();
     }
 

@@ -8,6 +8,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use App\Entity\Option;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
 class SearchPropertyType extends AbstractType
 {
@@ -15,8 +17,14 @@ class SearchPropertyType extends AbstractType
     {
         $builder
             ->add('maxPrice', IntegerType::class, ['required' => false, 'label'=>false, 'attr'=>['placeholder'=>'budget max']])
-            ->add('minSurface', IntegerType::class, ['required' => false, 'label'=>false, 'attr'=>['placeholder'=>'Surface min']]);
-           // ->add('submit', SubmitType::class, ['label'=> 'Rechercher']) ;
+            ->add('minSurface', IntegerType::class, ['required' => false, 'label'=>false, 'attr'=>['placeholder'=>'Surface min']])
+           ->add('option', EntityType::class, [
+                'required'=> false,
+                'label' => false,
+                'class' => Option::class,
+                'choice_label' => 'name',
+                'multiple' => true
+            ]) ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
