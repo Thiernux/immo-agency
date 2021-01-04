@@ -1,2 +1,2 @@
 # immo-agency
-application for real estate management
+Symfony application for real estate management
