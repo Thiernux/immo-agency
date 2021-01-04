@@ -9,6 +9,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 class PropertyType extends AbstractType
 {
@@ -54,7 +56,22 @@ class PropertyType extends AbstractType
             ->add('sold', null, [
                 'label'=>'Vendu'
             ])
-            //->add('created_at')
+            
+            ->add('image', FileType::class, [
+                'label' => 'Image (PNG file)',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '1024k',
+                        'mimeTypes' => [
+                            'image/png',
+                        ],
+                        'mimeTypesMessage' => 'Chargez une image au format PNG',
+                    ])
+                ],
+
+            ])
         ;
     }
 

@@ -10,8 +10,14 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\SearchProperty;
 use App\Form\SearchPropertyType;
+use App\Entity\Contact;
+use App\Form\ContactType;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use App\Notification\ContactNotification;
 //use Symfony\Component\Form\Extension\Core\Type\SearchPropertyType;
-
+//use Symfony\Component\HttpFoundation\File\UploadedFile;
+//use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 
 
@@ -57,18 +63,35 @@ class PropertyController extends AbstractController
  *@param Property $property
  *@return Response
  */
-	public function show(Property $property, string $slug): Response
+	public function show(Property $property, string $slug, Request $request, ContactNotification $notification): Response
 	{
 		//Important for the referencement. if someone change the slug our id, it will redirect
-		if ($property->getSlug() !== $slug) {
+		$contact = new Contact();
+		$contact->setProperty($property);
+		$form = $this->createForm(ContactType::class, $contact);
+
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()) {
+			$notification->notify($contact);
+			$this->addFlash('success', 'Votre message a bien été envoyé !');
+			return $this->redirectToRoute('property.show', [
+			'id' => $property->getId(),
+			'slug' => $property->getSlug()
+			]);
+		}
+
+		if ($property->getSlug() !== $slug) 
+		{
 			return $this->redirectToRoute('property.show', [
 				'id' => $property->getId(),
 				'slug' => $property->getSlug()
 			], 301);
 		}
-		return $this->render('property/show.html.twig', [
+		 return $this->render('property/show.html.twig', [
 			'property' => $property,
-			'current_menu' => 'properties'
+			'current_menu' => 'properties',
+			'form' => $form->createView()
 	]);
 	}
 }

@@ -103,6 +103,13 @@ class Property
      * @ORM\ManyToMany(targetEntity=Option::class, inversedBy="properties")
      */
     private $options;
+
+     /**
+     * @ORM\Column(type="string")
+     */
+    private $imageFilename;
+
+
     function __construct()
     {
         $this->created_at = new \DateTime();
@@ -308,6 +315,19 @@ class Property
         if ($this->options->removeElement($option)) {
             $option->removeProperty($this);
         }
+
+        return $this;
+    }
+
+
+    public function getImageFilename()
+    {
+        return $this->imageFilename;
+    }
+
+    public function setImageFilename($imageFilename)
+    {
+        $this->imageFilename = $imageFilename;
 
         return $this;
     }

@@ -10,6 +10,8 @@ use App\Entity\Property;
 use App\Repository\PropertyRepository;
 use App\Form\PropertyType;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
 
@@ -59,8 +61,30 @@ class AdminPropertyController extends AbstractController
 			$this->em->persist($property); // HERE WE NEED TO PERSIST BEFORE FLUSHING, BECAUSE THE DATA DO NOT EXIST IN DB
 			$this->em->flush();
 			$this->addFlash('success', 'Bien ajouté avec succès !');
+			$imageFile = $form->get('image')->getData(); // Uploading the file
+
+			if($imageFile)
+			{
+				$originalFileName = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+				$safeFileName = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
+				$newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+				try {
+                    $imageFile->move(
+                        $this->getParameter('images_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    // ... handle exception if something happens during file upload
+                }
+
+                // updates the 'brochureFilename' property to store the PDF file name
+                // instead of its contents
+                $product->setBrochureFilename($newFilename);
+			}
 			return $this->redirectToRoute('admin.property.index');
 		}
+
+
 		return $this->render('admin/property/new.html.twig', [
 			'property' => $property,
 			'form' => $form->createView()
